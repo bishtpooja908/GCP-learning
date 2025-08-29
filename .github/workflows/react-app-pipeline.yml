@@ -63,7 +63,7 @@ jobs:
           # Clone the repo using PAT for authentication
           git clone --single-branch --branch $BRANCH \
             https://x-access-token:${{ secrets.ARGOCD_REPO_PAT }}@github.com/bishtpooja908/Argocd-helm-repo.git charts-repo
-          cd /$CHART_FOLDER
+          cd charts-repo/$CHART_FOLDER
 
           # Configure Git user
           git config user.name "github-actions[bot]"
