@@ -60,22 +60,23 @@ jobs:
           VALUES_FILE="${APP_NAME}-values.yaml"
           BRANCH=feature/helm-charts-deployments
 
+          # Clone the repo using PAT for authentication
           git clone --single-branch --branch $BRANCH \
             https://x-access-token:${{ secrets.ARGOCD_REPO_PAT }}@github.com/bishtpooja908/Argocd-helm-repo.git charts-repo
-          cd charts-repo/helm-charts/react-helm
+          cd charts-repo/$CHART_FOLDER
 
-          # Update Helm values dynamically
-          yq e -i ".image.repository = \"${IMAGE_URI%:*}\"" $VALUES_FILE
-          yq e -i ".image.tag = \"${IMAGE_URI##*:}\"" $VALUES_FILE
-
+          # Configure Git user
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Pull remote changes to avoid divergence
+          # Pull remote changes first to avoid rebase conflicts
           git pull --rebase origin $BRANCH || echo "No remote changes"
 
+          # Update Helm values.yaml dynamically
+          yq e -i ".image.repository = \"${IMAGE_URI%:*}\"" $VALUES_FILE
+          yq e -i ".image.tag = \"${IMAGE_URI##*:}\"" $VALUES_FILE
+
+          # Commit and push changes if any
           git add $VALUES_FILE
-          git commit -m "Update $APP_NAME image -> $IMAGE_URI" || echo "No changes"
+          git commit -m "Update $APP_NAME image -> $IMAGE_URI" || echo "No changes to commit"
           git push https://x-access-token:${{ secrets.ARGOCD_REPO_PAT }}@github.com/bishtpooja908/Argocd-helm-repo.git $BRANCH
-
-
