@@ -60,8 +60,9 @@ jobs:
           VALUES_FILE="${APP_NAME}-values.yaml"
           BRANCH=feature/helm-charts-deployments
 
-          git clone --single-branch --branch $BRANCH https://github.com/org/Argocd-helm-repo.git charts-repo
-          cd charts-repo/$CHART_FOLDER
+          git clone --single-branch --branch $BRANCH \
+            https://x-access-token:${{ secrets.ARGOCD_REPO_PAT }}@github.com/org/Argocd-helm-repo.git charts-repo
+          cd charts-repo/helm-charts/react-helm
 
           # Update Helm values dynamically
           yq e -i ".image.repository = \"${IMAGE_URI%:*}\"" $VALUES_FILE
