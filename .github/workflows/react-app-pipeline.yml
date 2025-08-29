@@ -76,6 +76,6 @@ jobs:
 
           git add $VALUES_FILE
           git commit -m "Update $APP_NAME image -> $IMAGE_URI" || echo "No changes"
-          git push https://x-access-token:${{ secrets.ARGOCD_REPO_PAT }}@github.com/org/Argocd-helm-repo.git $BRANCH
+          git push https://x-access-token:${{ secrets.ARGOCD_REPO_PAT }}@github.com/bishtpooja908/Argocd-helm-repo.git $BRANCH
 
 
