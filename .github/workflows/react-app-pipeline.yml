@@ -55,15 +55,25 @@ jobs:
 
       - name: Update Helm values.yaml in ArgoCD repo
         run: |
-          git clone --single-branch --branch main https://github.com/org/argocd-charts.git charts-repo
-          cd charts-repo/react-app
+          APP_NAME=react-app
+          VALUES_FILE="${APP_NAME}-values.yaml"
+          BRANCH=feature/helm-charts-deployments   # your working branch
 
-          # Update values.yaml (structured form)
-          yq e -i ".image.repository = \"${IMAGE_URI%:*}\"" values.yaml
-          yq e -i ".image.tag = \"${IMAGE_URI##*:}\"" values.yaml
+          git clone --single-branch --branch $BRANCH https://github.com/org/argocd-helm-repo.git charts-repo
+          cd charts-repo/$APP_NAME
+
+          # Update Helm values dynamically
+          yq e -i ".image.repository = \"${IMAGE_URI%:*}\"" $VALUES_FILE
+          yq e -i ".image.tag = \"${IMAGE_URI##*:}\"" $VALUES_FILE
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add values.yaml
-          git commit -m "Update react-app image -> $IMAGE_URI" || echo "No changes"
-          git push https://x-access-token:${{ secrets.ARGOCD_REPO_PAT }}@github.com/org/argocd-charts.git main
+
+          # Pull remote changes to avoid divergence
+          git pull --rebase origin $BRANCH || echo "No remote changes"
+
+          git add $VALUES_FILE
+          git commit -m "Update $APP_NAME image -> $IMAGE_URI" || echo "No changes"
+          git push https://x-access-token:${{ secrets.ARGOCD_REPO_PAT }}@github.com/org/Argocd-helm-repo.git $BRANCH
+
+
