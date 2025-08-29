@@ -56,11 +56,12 @@ jobs:
       - name: Update Helm values.yaml in ArgoCD repo
         run: |
           APP_NAME=react-app
+          CHART_FOLDER="helm-charts/${APP_NAME}-helm"
           VALUES_FILE="${APP_NAME}-values.yaml"
-          BRANCH=feature/helm-charts-deployments   # your working branch
+          BRANCH=feature/helm-charts-deployments
 
-          git clone --single-branch --branch $BRANCH https://github.com/org/argocd-helm-repo.git charts-repo
-          cd charts-repo/$APP_NAME
+          git clone --single-branch --branch $BRANCH https://github.com/org/Argocd-helm-repo.git charts-repo
+          cd charts-repo/$CHART_FOLDER
 
           # Update Helm values dynamically
           yq e -i ".image.repository = \"${IMAGE_URI%:*}\"" $VALUES_FILE
