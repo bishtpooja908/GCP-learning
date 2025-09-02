@@ -14,7 +14,12 @@ RUN npm run build
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
 
-RUN mkdir -p /tmp/nginx/client_temp
+# Create writable temp dirs
+RUN mkdir -p /tmp/nginx/client_temp \
+    /tmp/nginx/proxy_temp \
+    /tmp/nginx/fastcgi_temp \
+    /tmp/nginx/uwsgi_temp \
+    /tmp/nginx/scgi_temp
 
 # Copy built React app from builder stage
 COPY --from=build /app/build /usr/share/nginx/html
