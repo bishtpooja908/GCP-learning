@@ -1,84 +1,83 @@
 
-name: CI-CD React App
+# name: CI-CD React App
 
-on:
-  push:
-    branches: [ "feature/helm-chart-testing-pb" ]
+# on:
+#   push:
+#     branches: [ "feature/helm-chart-testing-pb" ]
 
-permissions:
- contents: read
- id-token: write
+# permissions:
+#  contents: read
+#  id-token: write
 
-env:
-  PROJECT_ID: prj-devops-anmol
-  REGION: us-west1                    
-  REPO_NAME: generic-testing-repo                   
-  IMAGE_NAME: react-app                   
-  IMAGE_TAG: ${{ github.sha }}
+# env:
+#   PROJECT_ID: prj-devops-anmol
+#   REGION: us-west1                    
+#   REPO_NAME: generic-testing-repo                   
+#   IMAGE_NAME: react-app                   
+#   IMAGE_TAG: ${{ github.sha }}
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout source
+#         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 18
 
-      - name: Install deps & run tests
-        run: |
-          npm ci
-          npm run build
-          npm test --if-present
+#       - name: Install deps & run tests
+#         run: |
+#           npm ci
+#           npm run build
+#           npm test --if-present
 
-      - name: Authenticate to Google Cloud
-        id: auth
-        uses: google-github-actions/auth@v1
-        with:
-          create_credentials_file: true
-          workload_identity_provider: 'projects/453347564840/locations/global/workloadIdentityPools/gke-github-provider/providers/gke-github-provider'
-          service_account: 'github-action-svc-account@prj-devops-anmol.iam.gserviceaccount.com'
+#       - name: Authenticate to Google Cloud
+#         id: auth
+#         uses: google-github-actions/auth@v1
+#         with:
+#           create_credentials_file: true
+#           workload_identity_provider: 'projects/453347564840/locations/global/workloadIdentityPools/gke-github-provider/providers/gke-github-provider'
+#           service_account: 'github-action-svc-account@prj-devops-anmol.iam.gserviceaccount.com'
 
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+#       - name: Configure Docker for Artifact Registry
+#         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
-      - name: Build and Push Docker Image
-        run: |
-          IMAGE_URI=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
-          docker build -t $IMAGE_URI .
-          docker push $IMAGE_URI
+#       - name: Build and Push Docker Image
+#         run: |
+#           IMAGE_URI=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+#           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+#           docker build -t $IMAGE_URI .
+#           docker push $IMAGE_URI
 
-      - name: Update Helm values.yaml in ArgoCD repo
-        run: |
-          APP_NAME=react
-          CHART_FOLDER="helm-charts/${APP_NAME}-helm"
-          VALUES_FILE="${APP_NAME}-values.yaml"
-          BRANCH=feature/helm-charts-deployments
+#       - name: Update Helm values.yaml in ArgoCD repo
+#         run: |
+#           APP_NAME=react
+#           CHART_FOLDER="helm-charts/${APP_NAME}-helm"
+#           VALUES_FILE="${APP_NAME}-values.yaml"
+#           BRANCH=feature/helm-charts-deployments
 
-          # Clone the repo using PAT for authentication
-          git clone --single-branch --branch $BRANCH \
-            https://x-access-token:${{ secrets.ARGOCD_REPO_PAT }}@github.com/bishtpooja908/Argocd-helm-repo.git charts-repo
-          cd charts-repo/$CHART_FOLDER
+#           # Clone the repo using PAT for authentication
+#           git clone --single-branch --branch $BRANCH \
+#             https://x-access-token:${{ secrets.ARGOCD_REPO_PAT }}@github.com/bishtpooja908/Argocd-helm-repo.git charts-repo
+#           cd charts-repo/$CHART_FOLDER
 
-          # Configure Git user
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+#           # Configure Git user
+#           git config user.name "github-actions[bot]"
+#           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Pull remote changes first to avoid rebase conflicts
-          git pull --rebase origin $BRANCH || echo "No remote changes"
+#           # Pull remote changes first to avoid rebase conflicts
+#           git pull --rebase origin $BRANCH || echo "No remote changes"
 
-          # Update Helm values.yaml dynamically
-          yq e -i ".image.repository = \"${IMAGE_URI%:*}\"" $VALUES_FILE
-          yq e -i ".image.tag = \"${IMAGE_URI##*:}\"" $VALUES_FILE
+#           # Update Helm values.yaml dynamically
+#           yq e -i ".image.repository = \"${IMAGE_URI%:*}\"" $VALUES_FILE
+#           yq e -i ".image.tag = \"${IMAGE_URI##*:}\"" $VALUES_FILE
 
-          # Commit and push changes if any
-          git add $VALUES_FILE
-          git commit -m "Update $APP_NAME image -> $IMAGE_URI" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.ARGOCD_REPO_PAT }}@github.com/bishtpooja908/Argocd-helm-repo.git $BRANCH
+#           # Commit and push changes if any
+#           git add $VALUES_FILE
+#           git commit -m "Update $APP_NAME image -> $IMAGE_URI" || echo "No changes to commit"
+#           git push https://x-access-token:${{ secrets.ARGOCD_REPO_PAT }}@github.com/bishtpooja908/Argocd-helm-repo.git $BRANCH
 
-##testing
