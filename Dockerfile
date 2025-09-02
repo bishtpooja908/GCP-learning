@@ -14,6 +14,8 @@ RUN npm run build
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
 
+RUN mkdir -p /tmp/nginx/client_temp
+
 # Copy built React app from builder stage
 COPY --from=build /app/build /usr/share/nginx/html
 
@@ -21,6 +23,6 @@ COPY --from=build /app/build /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
-EXPOSE 3000
+EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
