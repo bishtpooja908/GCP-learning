@@ -25,7 +25,7 @@ RUN mkdir -p /tmp/nginx/client_temp \
 COPY --from=build /app/build /usr/share/nginx/html
 
 # Copy default Nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 80
 EXPOSE 80
