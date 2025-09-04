@@ -9,7 +9,7 @@ load_dotenv()
 
 DB_CONFIG = {
     'host': os.getenv('DB_HOST', 'localhost'),
-    'database': os.getenv('DB_DATABASE', 'mysql-instance'),
+    'database': os.getenv('DB_DATABASE', 'generic_db'),
     'user': os.getenv('DB_USER', 'gke-generic-user'),
     'password': os.getenv('DB_PASSWORD', '_u7|uRGhph0ql5H=')
 }
