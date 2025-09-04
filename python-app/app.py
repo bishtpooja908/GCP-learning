@@ -13,3 +13,4 @@ if st.button("Greet Me"):
 # Slider
 age = st.slider("Select your age:", 1, 100, 25)
 st.write(f"You are {age} years old.")
+
