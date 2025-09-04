@@ -15,3 +15,4 @@ CREATE TABLE IF NOT EXISTS users (
 -- CREATE USER 'streamlit_user'@'*' IDENTIFIED BY 'your_password';
 -- GRANT ALL PRIVILEGES ON streamlit_app.* TO 'streamlit_user'@'*';
 -- FLUSH PRIVILEGES;
+
