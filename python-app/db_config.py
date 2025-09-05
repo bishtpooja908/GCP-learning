@@ -8,10 +8,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DB_CONFIG = {
-    'host': os.getenv('DB_HOST', 'localhost'),
-    'database': os.getenv('DB_DATABASE', 'generic_db'),
-    'user': os.getenv('DB_USER', 'gke-generic-user'),
-    'password': os.getenv('DB_PASSWORD', '_u7|uRGhph0ql5H=')
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_DATABASE"),
+    port=int(os.getenv("DB_PORT", 3306))
 }
 
 def get_connection():
