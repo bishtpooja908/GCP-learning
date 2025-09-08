@@ -12,7 +12,10 @@ COPY . .
 # Create a writable .streamlit config directory
 RUN mkdir -p /app/.streamlit /app/.cache && chmod -R 777 /app
 
-# Tell Streamlit to use this folder instead of "/.streamlit"
+# Create a non-root user and set HOME
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+USER appuser
+ENV HOME=/app
 
 # Force Streamlit to use these paths
 ENV STREAMLIT_CACHE_DIR=/app/.cache
