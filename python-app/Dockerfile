@@ -10,10 +10,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create a writable .streamlit config directory
-RUN mkdir -p /app/.streamlit && chmod -R 777 /app/.streamlit
+RUN mkdir -p /app/.streamlit /app/.cache && chmod -R 777 /app
 
 # Tell Streamlit to use this folder instead of "/.streamlit"
-ENV STREAMLIT_CONFIG_DIR=/app/.streamlit
+
+# Force Streamlit to use these paths
+ENV STREAMLIT_CACHE_DIR=/app/.cache
+ENV XDG_CONFIG_HOME=/app/.streamlit
 ENV STREAMLIT_BROWSER_GATHERUSAGESTATS=false
 
 EXPOSE 8501
